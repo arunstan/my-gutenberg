@@ -1,0 +1,10 @@
+services:
+  db:
+    image: postgres:13
+    restart: always
+    environment:
+      POSTGRES_USER: ${GTL_DATABASE_USER}
+      POSTGRES_PASSWORD: ${GTL_DATABASE_PASSWORD}
+      POSTGRES_DB: ${GTL_DATABASE_NAME}
+    ports:
+      - "${GTL_DATABASE_LOCAL_PORT}:${GTL_DATABASE_CONTAINER_PORT}"

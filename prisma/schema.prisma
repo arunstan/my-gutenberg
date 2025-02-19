@@ -1,0 +1,48 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+datasource db {
+  provider = "postgresql" // or "sqlite" for a simpler setup
+  url      = env("GTL_DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id         Int         @id @default(autoincrement())
+  username   String
+  email      String?     @unique
+  createdAt  DateTime    @default(now())
+  books      UserBook[]
+}
+
+model Book {
+  id              Int       @id // Project Gutenberg book ID
+  title           String?
+  author          String?
+  publicationDate DateTime?
+  content         String
+  metadata        Json?
+  analysis        Json?     // e.g., { keyCharacters: [...], sentiment: "", plotSummary: "" }
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  users           UserBook[]
+}
+
+model UserBook {
+  id       Int   @id @default(autoincrement())
+  userId   Int
+  bookId   Int
+  accessedAt DateTime @default(now())
+
+  user     User @relation(fields: [userId], references: [id])
+  book     Book @relation(fields: [bookId], references: [id])
+
+  @@unique([userId, bookId])
+}
+
