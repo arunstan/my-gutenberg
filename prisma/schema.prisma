@@ -24,7 +24,7 @@ model User {
 model Book {
   id              Int       @id // Project Gutenberg book ID
   title           String?
-  author          String?
+  author          String[]
   publicationDate DateTime?
   content         String
   metadata        Json?
