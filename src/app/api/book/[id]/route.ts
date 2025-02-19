@@ -28,26 +28,34 @@ export async function GET(
     if (!contentResponse.ok) throw new Error("Failed to fetch book content");
     const content = await contentResponse.text();
 
-    // Use Gutendex API to fetch metadata in JSON format
+    // Fetch metadata from Gutendex in JSON format
     const gutendexUrl = `https://gutendex.com/books?ids=${bookId}`;
     const gutendexResponse = await fetch(gutendexUrl);
     if (!gutendexResponse.ok)
       throw new Error("Failed to fetch metadata from Gutendex");
     const gutendexData = await gutendexResponse.json();
 
+    let title = "";
+    let author: string[] = [];
     let parsedMetadata = {};
+
     if (gutendexData.results && gutendexData.results.length > 0) {
       parsedMetadata = gutendexData.results[0];
-    } else {
-      parsedMetadata = { error: "No metadata found from Gutendex" };
+      title = parsedMetadata.title || "";
+      // Map over the authors array from Gutendex to extract each author's name
+      author = Array.isArray(parsedMetadata.authors)
+        ? parsedMetadata.authors.map((a: any) => a.name)
+        : [];
     }
 
-    // Create and store the new book record in the database
+    // Create a new book record including title and author array
     const newBook = await prisma.book.create({
       data: {
         id: bookId,
         content,
         metadata: parsedMetadata,
+        title: title,
+        author: author,
       },
     });
 
