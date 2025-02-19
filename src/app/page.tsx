@@ -46,7 +46,7 @@ export default function Home() {
             value={bookId}
             onChange={(e) => setBookId(e.target.value)}
             placeholder="e.g. 1"
-            className="w-full border border-gray-300 dark:border-gray-600 rounded p-2 mb-4 focus:outline-none focus:ring-2 focus:ring-blue-400"
+            className="w-full border border-gray-300 dark:border-gray-600 rounded p-2 mb-4 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400"
           />
           <button
             type="submit"
