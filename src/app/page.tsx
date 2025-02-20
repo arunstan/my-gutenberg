@@ -1,12 +1,26 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
 export default function Home() {
+  const { data: session, status } = useSession();
+  const router = useRouter();
   const [bookId, setBookId] = useState("");
   const [bookData, setBookData] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
+
+  useEffect(() => {
+    if (status !== "loading" && !session) {
+      router.push("/login");
+    }
+  }, [session, status, router]);
+
+  if (status === "loading" || !session) {
+    return <p>Loading...</p>;
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -110,7 +124,7 @@ export default function Home() {
           >
             &times;
           </button>
-          <div className="bg-white dark:bg-gray-800 p-6 rounded  mt-6 max-w-6xl mx-4 max-h-full overflow-auto">
+          <div className="bg-white dark:bg-gray-800 p-6 rounded mt-6 max-w-6xl mx-4 max-h-full overflow-auto">
             <div className="text-gray-900 dark:text-gray-100 whitespace-pre-wrap">
               {bookData.content || "No content available."}
             </div>
