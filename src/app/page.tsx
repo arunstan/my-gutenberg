@@ -6,6 +6,7 @@ export default function Home() {
   const [bookData, setBookData] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -70,9 +71,9 @@ export default function Home() {
               </p>
               <p className="mb-1">
                 <strong>Authors:</strong>{" "}
-                {Array.isArray(bookData.author)
-                  ? bookData.author.join(", ")
-                  : bookData.author}
+                {Array.isArray(bookData.authors)
+                  ? bookData.authors.join(", ")
+                  : bookData.authors}
               </p>
               <div className="mt-3">
                 <h4 className="text-lg font-bold mb-1">Metadata</h4>
@@ -88,10 +89,37 @@ export default function Home() {
                   <p>{bookData.metadata}</p>
                 )}
               </div>
+              <div className="mt-4 text-center">
+                <button
+                  onClick={() => setIsModalOpen(true)}
+                  className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded"
+                >
+                  Read Book
+                </button>
+              </div>
             </div>
           </div>
         )}
       </div>
+
+      {isModalOpen && (
+        <div className="fixed inset-0 z-50 bg-black bg-opacity-75 flex justify-center items-center">
+          <div className="bg-white dark:bg-gray-800 p-6 rounded max-w-4xl max-h-full overflow-auto relative">
+            <button
+              onClick={() => setIsModalOpen(false)}
+              className="absolute top-2 right-2 text-2xl font-bold text-gray-900 dark:text-gray-100"
+            >
+              &times;
+            </button>
+            <h2 className="text-2xl font-bold mb-4 text-gray-900 dark:text-gray-100">
+              Book Contents
+            </h2>
+            <div className="text-gray-900 dark:text-gray-100 whitespace-pre-wrap">
+              {bookData.content || "No content available."}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
