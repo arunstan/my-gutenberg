@@ -29,7 +29,7 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-gray-100 dark:bg-gray-900 flex items-center justify-center p-4">
-      <div className="max-w-md w-full bg-white dark:bg-gray-800 shadow-md rounded px-8 py-6">
+      <div className="max-w-3xl w-full bg-white dark:bg-gray-800 shadow-md rounded px-8 py-6">
         <h1 className="text-2xl font-bold mb-4 text-center text-gray-900 dark:text-gray-100">
           Gutenberg Book Fetcher
         </h1>
@@ -63,9 +63,32 @@ export default function Home() {
             <h2 className="text-xl font-bold mb-2 text-gray-900 dark:text-gray-100">
               Book Data:
             </h2>
-            <pre className="bg-gray-200 dark:bg-gray-700 p-4 rounded text-sm overflow-auto text-gray-900 dark:text-gray-100">
-              {JSON.stringify(bookData, null, 2)}
-            </pre>
+            <div className="bg-gray-200 dark:bg-gray-700 p-4 rounded text-gray-900 dark:text-gray-100">
+              <h3 className="text-2xl font-semibold mb-2">{bookData.title}</h3>
+              <p className="mb-1">
+                <strong>ID:</strong> {bookData.id}
+              </p>
+              <p className="mb-1">
+                <strong>Authors:</strong>{" "}
+                {Array.isArray(bookData.author)
+                  ? bookData.author.join(", ")
+                  : bookData.author}
+              </p>
+              <div className="mt-3">
+                <h4 className="text-lg font-bold mb-1">Metadata</h4>
+                {bookData.metadata && typeof bookData.metadata === "object" ? (
+                  <ul className="list-disc list-inside">
+                    {Object.entries(bookData.metadata).map(([key, value]) => (
+                      <li key={key}>
+                        <strong>{key}:</strong> {value.toString()}
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p>{bookData.metadata}</p>
+                )}
+              </div>
+            </div>
           </div>
         )}
       </div>
