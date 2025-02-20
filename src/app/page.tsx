@@ -104,16 +104,13 @@ export default function Home() {
 
       {isModalOpen && (
         <div className="fixed inset-0 z-50 bg-black bg-opacity-75 flex justify-center items-center">
-          <div className="bg-white dark:bg-gray-800 p-6 rounded max-w-4xl max-h-full overflow-auto relative">
-            <button
-              onClick={() => setIsModalOpen(false)}
-              className="absolute top-2 right-2 text-2xl font-bold text-gray-900 dark:text-gray-100"
-            >
-              &times;
-            </button>
-            <h2 className="text-2xl font-bold mb-4 text-gray-900 dark:text-gray-100">
-              Book Contents
-            </h2>
+          <button
+            onClick={() => setIsModalOpen(false)}
+            className="fixed top-4 right-4 text-4xl font-bold text-white hover:text-gray-300"
+          >
+            &times;
+          </button>
+          <div className="bg-white dark:bg-gray-800 p-6 rounded  mt-6 max-w-6xl mx-4 max-h-full overflow-auto">
             <div className="text-gray-900 dark:text-gray-100 whitespace-pre-wrap">
               {bookData.content || "No content available."}
             </div>
