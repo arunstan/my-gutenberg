@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "../../auth/[...nextauth]/route";
 
 const prisma = new PrismaClient();
 
@@ -7,14 +9,29 @@ export async function GET(
   request: Request,
   { params }: { params: { id: string } }
 ) {
-  const { id } = params;
+  // Ensure dynamic route params are awaited
+  const { id } = await Promise.resolve(params);
   const bookId = parseInt(id, 10);
   if (isNaN(bookId)) {
     return NextResponse.json({ error: "Invalid book id" }, { status: 400 });
   }
 
+  // Get session to identify the authenticated user
+  const session = await getServerSession(authOptions);
+  if (!session || !session.user || !session.user.email) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  // Look up the user by their email
+  const user = await prisma.user.findUnique({
+    where: { email: session.user.email },
+  });
+  if (!user) {
+    return NextResponse.json({ error: "User not found" }, { status: 404 });
+  }
+
   try {
-    // Check if the book already exists in the database
+    // Check if the book already exists
     let book = await prisma.book.findUnique({
       where: { id: bookId },
     });
@@ -56,30 +73,24 @@ export async function GET(
           author,
         },
       });
-
-      // Create a new UserBook record for user with id 1
-      await prisma.userBook.create({
-        data: {
-          userId: 1,
-          bookId: book.id,
-        },
-      });
-    } else {
-      // Book already exists; update (or insert) a UserBook record for user 1
-      await prisma.userBook.upsert({
-        where: {
-          // Use the composite unique key (userId, bookId)
-          userId_bookId: { userId: 1, bookId },
-        },
-        update: {
-          accessedAt: new Date(),
-        },
-        create: {
-          userId: 1,
-          bookId,
-        },
-      });
     }
+
+    // Update or insert a UserBook record for the current user,
+    // setting "accessedAt" to the current time.
+    await prisma.userBook.upsert({
+      where: {
+        // Using the composite unique key (userId, bookId)
+        userId_bookId: { userId: user.id, bookId },
+      },
+      update: {
+        accessedAt: new Date(),
+      },
+      create: {
+        userId: user.id,
+        bookId,
+        accessedAt: new Date(),
+      },
+    });
 
     return NextResponse.json(book);
   } catch (error) {
