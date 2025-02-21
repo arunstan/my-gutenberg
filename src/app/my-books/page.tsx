@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 export default function MyBooksPage() {
   const { data: session, status } = useSession();
@@ -52,7 +53,12 @@ export default function MyBooksPage() {
           <ul>
             {books.map((book) => (
               <li key={book.id} className="border-b py-2">
-                <h2 className="text-xl font-semibold">{book.title}</h2>
+                <Link
+                  href={`/book/${book.id}`}
+                  className="text-blue-500 hover:underline"
+                >
+                  <h2 className="text-xl font-semibold">{book.title}</h2>
+                </Link>
                 <p>
                   <strong>ID:</strong> {book.id}
                 </p>

@@ -7,7 +7,7 @@ import { APP_TITLE } from "../layout";
 export default function AppBar() {
   const { data: session } = useSession();
 
-  return (
+  return session ? (
     <header className="fixed top-0 left-0 right-0 bg-blue-600 text-white p-4 flex justify-between items-center z-50 shadow-md">
       <div className="flex items-center space-x-6">
         <Link href="/">
@@ -40,5 +40,5 @@ export default function AppBar() {
         )}
       </div>
     </header>
-  );
+  ) : null;
 }

@@ -8,7 +8,7 @@ export default function BookPage() {
   const router = useRouter();
   const { data: session, status } = useSession();
   const [bookData, setBookData] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
   useEffect(() => {
@@ -30,54 +30,67 @@ export default function BookPage() {
           setLoading(false);
         }
       }
-      fetchBook();
+      if (!loading) {
+        fetchBook();
+      }
     }
-  }, [id, session, status, router]);
+  }, [id, session, status]);
 
-  if (loading) return;
-  if (error) return;
-  if (!bookData) return <p>No book data found.</p>;
+  const renderDataLoadStatus = () => {
+    if (loading) {
+      return <p>Loading book data...</p>;
+    }
+    if (error) {
+      return <p className="text-red-500">{error}</p>;
+    }
+    if (!bookData) {
+      return <p>No book data found.</p>;
+    }
+  };
 
   return (
     <div className="min-h-screen p-4 bg-gray-100 dark:bg-gray-900">
-      {loading && <p>Loading book data...</p>}
-      {error && <p className="text-red-500">{error}</p>}
-      {!bookData && <p>No book data found.</p>}
-      {bookData && (
-        <div className="max-w-3xl mx-auto bg-white dark:bg-gray-800 p-6 rounded shadow-md">
-          <h1 className="text-2xl font-bold mb-4">{bookData.title}</h1>
-          <p>
-            <strong>ID:</strong> {bookData.id}
-          </p>
-          <p>
-            <strong>Authors:</strong>{" "}
-            {Array.isArray(bookData.authors)
-              ? bookData.authors.join(", ")
-              : bookData.authors}
-          </p>
-          <div className="mt-3">
-            <h2 className="text-xl font-bold mb-1">Metadata</h2>
-            {bookData.metadata && typeof bookData.metadata === "object" ? (
-              <ul className="list-disc list-inside">
-                {Object.entries(bookData.metadata).map(([key, value]) => (
-                  <li key={key}>
-                    <strong>{key}:</strong>{" "}
-                    {value !== null ? value.toString() : "null"}
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p>{bookData.metadata}</p>
-            )}
-          </div>
-          <div className="mt-4">
-            <h2 className="text-xl font-bold mb-1">Content</h2>
-            <div className="whitespace-pre-wrap">
-              {bookData.content || "No content available."}
+      <div className="max-w-3xl mx-auto bg-white dark:bg-gray-800 p-6 rounded shadow-md">
+        {bookData ? (
+          <div>
+            <h1 className="text-2xl font-bold mb-4">{bookData.title}</h1>
+            <p>
+              <strong>ID:</strong> {bookData.id}
+            </p>
+            <p>
+              <strong>Authors:</strong>{" "}
+              {Array.isArray(bookData.author)
+                ? bookData.author.join(", ")
+                : bookData.author}
+            </p>
+            <div className="mt-3">
+              <h2 className="text-xl font-bold mb-1">Metadata</h2>
+              {bookData.metadata && typeof bookData.metadata === "object" ? (
+                <ul className="list-disc list-inside">
+                  {Object.entries(bookData.metadata).map(([key, value]) => (
+                    <li key={key}>
+                      <strong>{key}:</strong>
+                      {value !== null ? value?.toString() : "null"}
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p>{bookData.metadata}</p>
+              )}
+            </div>
+            <div className="mt-4">
+              <h2 className="text-xl font-bold mb-1">Content</h2>
+              <div className="whitespace-pre-wrap">
+                {bookData.content || "No content available."}
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        ) : (
+          <div className="flex justify-center items-center">
+            {renderDataLoadStatus()}
+          </div>
+        )}
+      </div>
     </div>
   );
 }
