@@ -4,6 +4,14 @@ import { useParams, useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { ReadMoreTextBlock } from "@/app/components/ReadMoreTextBlock";
 
+interface BookAnalysis {
+  key_characters: string[];
+  detected_language: string;
+  sentiment: string;
+  reasoning_for_sentiment: string;
+  plot_summary: string;
+}
+
 const IGNORED_METADATA_FIELDS = [
   "id",
   "title",
@@ -21,6 +29,14 @@ export default function BookPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [showModal, setShowModal] = useState(false);
+
+  // Analysis states
+  const [showAnalysisModal, setShowAnalysisModal] = useState(false);
+  const [analysisResult, setAnalysisResult] = useState<
+    BookAnalysis | string | null
+  >(null);
+  const [analysisLoading, setAnalysisLoading] = useState(false);
+  const [analysisError, setAnalysisError] = useState("");
 
   const transformMetadataKey = (key: string) =>
     key
@@ -65,6 +81,29 @@ export default function BookPage() {
     }
   }, [id, session, status]);
 
+  const handleAnalyze = async (forceRerun: boolean = false) => {
+    setAnalysisLoading(true);
+    setAnalysisError("");
+    try {
+      const url = forceRerun
+        ? `/api/book/${id}/analyze?rerun=true`
+        : `/api/book/${id}/analyze`;
+      const res = await fetch(url);
+      if (!res.ok) {
+        throw new Error("Failed to analyze book");
+      }
+      const data = await res.json();
+      // Assume the API returns a formatted JSON object in data.analysis
+      setAnalysisResult(data.analysis);
+      setShowAnalysisModal(true);
+    } catch (err: any) {
+      setAnalysisError(err.message || "An error occurred during analysis");
+      setShowAnalysisModal(true);
+    } finally {
+      setAnalysisLoading(false);
+    }
+  };
+
   const renderDataLoadStatus = () => {
     if (loading) {
       return <p>Loading book data...</p>;
@@ -75,6 +114,42 @@ export default function BookPage() {
     if (!bookData) {
       return <p>No book data found.</p>;
     }
+  };
+
+  const renderAnalysis = () => {
+    if (!analysisResult) return null;
+
+    return (
+      <div>
+        <h2 className="text-2xl font-bold mb-4">
+          AI Analysis for <span className="italic">{bookData.title}</span>
+        </h2>
+        {typeof analysisResult === "string" ? (
+          <pre className="whitespace-pre-wrap">{analysisResult}</pre>
+        ) : (
+          <div className="space-y-4">
+            <div>
+              <strong>Key Characters:</strong>{" "}
+              {analysisResult.key_characters.join(", ")}
+            </div>
+            <div>
+              <strong>Detected Language:</strong>{" "}
+              {analysisResult.detected_language}
+            </div>
+            <div>
+              <strong>Sentiment:</strong> {analysisResult.sentiment}
+            </div>
+            <div>
+              <strong>Reasoning for Sentiment:</strong>{" "}
+              {analysisResult.reasoning_for_sentiment}
+            </div>
+            <div>
+              <strong>Plot Summary:</strong> {analysisResult.plot_summary}
+            </div>
+          </div>
+        )}
+      </div>
+    );
   };
 
   return (
@@ -92,12 +167,19 @@ export default function BookPage() {
                 ? bookData.author.join(", ")
                 : bookData.author}
             </p>
-            <div className="mt-4">
+            <div className="mt-4 flex gap-4">
               <button
                 onClick={() => setShowModal(true)}
                 className="px-4 py-2 bg-blue-500 text-white rounded"
               >
                 Read Book
+              </button>
+              <button
+                onClick={() => handleAnalyze()}
+                className="px-4 py-2 bg-green-500 text-white rounded"
+                disabled={analysisLoading}
+              >
+                {analysisLoading ? "Analyzing..." : "AI Analyze"}
               </button>
             </div>
             <div className="mt-4">
@@ -149,7 +231,36 @@ export default function BookPage() {
             </div>
             <button
               onClick={() => setShowModal(false)}
-              className="absolute top-0 right-[-40] translate-x-1/2 -translate-y-1/2 text-6xl text-gray-100 hover:text-gray-50"
+              className="absolute top-0 right-[-40px] translate-x-1/2 -translate-y-1/2 text-6xl text-gray-100 hover:text-gray-50"
+            >
+              &times;
+            </button>
+          </div>
+        </div>
+      )}
+
+      {showAnalysisModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-75">
+          <div className="relative">
+            <div className="bg-white dark:bg-gray-800 p-6 rounded shadow-lg max-w-4xl w-[90vw] max-h-[80vh] overflow-y-auto">
+              {analysisError ? (
+                <p className="text-red-500">{analysisError}</p>
+              ) : (
+                renderAnalysis()
+              )}
+            </div>
+            <div className="flex gap-4 mt-4 justify-center">
+              <button
+                onClick={() => handleAnalyze(true)}
+                className="px-4 py-2 bg-yellow-500 text-white rounded"
+                disabled={analysisLoading}
+              >
+                {analysisLoading ? "Re-running..." : "Re-run Analysis"}
+              </button>
+            </div>
+            <button
+              onClick={() => setShowAnalysisModal(false)}
+              className="absolute top-0 right-[-40px] translate-x-1/2 -translate-y-1/2 text-6xl text-gray-100 hover:text-gray-50"
             >
               &times;
             </button>
