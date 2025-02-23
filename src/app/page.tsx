@@ -1,12 +1,14 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, ChangeEvent } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import { Button } from "./components/Button";
 
 export default function Home() {
   const { data: session, status } = useSession();
   const router = useRouter();
   const [bookId, setBookId] = useState("");
+  const [error, setError] = useState("");
 
   useEffect(() => {
     if (status !== "loading" && !session) {
@@ -20,10 +22,19 @@ export default function Home() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (bookId.trim() !== "") {
-      // Navigate to the dedicated book view page
+    if (!error) {
       router.push(`/book/${bookId}`);
     }
+  };
+
+  const handleChangeBookId = (e: ChangeEvent<HTMLInputElement>) => {
+    setBookId(e.target.value);
+    const id = Number(e.target.value);
+    if (isNaN(id) || id <= 0) {
+      setError("Please enter a number greater than 0.");
+      return;
+    }
+    setError(""); // clear any existing error
   };
 
   return (
@@ -33,26 +44,24 @@ export default function Home() {
           Find a book
         </h1>
         <form onSubmit={handleSubmit} className="mb-4">
-          <label
-            htmlFor="bookId"
-            className="block text-gray-700 dark:text-gray-300 mb-2"
-          >
-            Enter Book ID:
-          </label>
-          <input
-            id="bookId"
-            type="text"
-            value={bookId}
-            onChange={(e) => setBookId(e.target.value)}
-            placeholder="e.g. 1"
-            className="w-full border border-gray-300 dark:border-gray-600 rounded p-2 mb-4 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400"
-          />
-          <button
-            type="submit"
-            className="w-full bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-          >
-            Fetch Book
-          </button>
+          <div className="flex flex-row">
+            <input
+              id="bookId"
+              value={bookId}
+              onChange={handleChangeBookId}
+              placeholder="Enter a book ID, e.g. 1"
+              className="w-4/5 border border-gray-300 dark:border-gray-600 rounded p-2 mr-4 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400"
+            />
+            <Button
+              type="submit"
+              variant="primary"
+              className="w-1/5"
+              disabled={!!error}
+            >
+              Fetch Book
+            </Button>
+          </div>
+          {error && <p className="text-red-500 mt-2 text-sm">{error}</p>}
         </form>
       </div>
     </div>

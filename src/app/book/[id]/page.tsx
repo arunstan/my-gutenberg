@@ -7,6 +7,7 @@ import BookAnalysis from "./BookAnalysis";
 import BookMetadata from "./BookMetadata";
 import { useBookDetails } from "./useBookDetails";
 import { useBookAnalysis } from "./useBookAnalysis";
+import { Button } from "@/app/components/Button";
 
 export default function BookPage() {
   const { id } = useParams();
@@ -70,19 +71,16 @@ export default function BookPage() {
               {bookAuthor}
             </p>
             <div className="mt-4 flex gap-4">
-              <button
-                onClick={handleClickReadBook}
-                className="px-4 py-2 bg-blue-500 text-white rounded"
-              >
+              <Button onClick={handleClickReadBook} variant="primary">
                 Read Book
-              </button>
-              <button
+              </Button>
+              <Button
                 onClick={handleClickAnalyze}
-                className="px-4 py-2 bg-green-500 text-white rounded"
+                variant="ai"
                 disabled={analysisLoading}
               >
                 {analysisLoading ? "Analyzing..." : "AI Analyze"}
-              </button>
+              </Button>
             </div>
             <div className="mt-4">
               <BookMetadata metadata={bookData.metadata} />

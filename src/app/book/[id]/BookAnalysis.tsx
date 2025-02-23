@@ -1,5 +1,6 @@
 import React from "react";
 import { BookAnalysis as BookAnalysisType } from "@/types/bookAnalysis";
+import { Button } from "@/app/components/Button";
 
 type BookAnalysisProps = {
   analysisResult: BookAnalysisType | string | null;
@@ -60,13 +61,14 @@ export default function BookAnalysis({
               </h3>
             </div>
             <div className="ml-auto">
-              <button
+              <Button
+                variant="ai"
                 onClick={onReAnalyze}
-                className="inline-flex px-4 py-2 bg-blue-500 text-white rounded"
+                className="whitespace-nowrap"
                 disabled={analysisLoading}
               >
                 {analysisLoading ? "Analyzing..." : "Refresh Analysis"}
-              </button>
+              </Button>
             </div>
           </div>
           <div className="border-t pt-6 border-gray-300 dark:border-gray-600">

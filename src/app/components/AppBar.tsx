@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { signOut, useSession } from "next-auth/react";
 import { APP_TITLE } from "../layout";
+import { Button } from "./Button";
 
 export default function AppBar() {
   const { data: session } = useSession();
@@ -26,12 +27,13 @@ export default function AppBar() {
         {session?.user ? (
           <>
             <span>{session.user.email}</span>
-            <button
+            <Button
               onClick={() => signOut({ callbackUrl: "/login" })}
-              className="bg-red-500 hover:bg-red-700 text-white px-3 py-1 rounded"
+              variant="primary"
+              className="bg-red-500 hover:bg-red-700 text-white px-3 py-1"
             >
               Logout
-            </button>
+            </Button>
           </>
         ) : (
           <Link href="/login">
