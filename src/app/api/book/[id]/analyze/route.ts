@@ -1,15 +1,38 @@
 import { NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
 import { groq } from "@ai-sdk/groq";
-import { generateText } from "ai";
+import { generateObject, jsonSchema } from "ai";
+import { BookAnalysis } from "@/types/bookAnalysis";
 
 const prisma = new PrismaClient();
+
+const bookAnalysisSchema = jsonSchema({
+  type: "object",
+  properties: {
+    keyCharacters: {
+      type: "array",
+      items: { type: "string" },
+    },
+    detectedLanguage: { type: "string" },
+    sentiment: { type: "string" },
+    sentimentReasoning: { type: "string" },
+    plotSummary: { type: "string" },
+  },
+  required: [
+    "keyCharacters",
+    "detectedLanguage",
+    "sentiment",
+    "sentimentReasoning",
+    "plotSummary",
+  ],
+});
 
 export async function GET(
   request: Request,
   { params }: { params: { id: string } }
 ) {
   try {
+    // Await dynamic params to avoid sync-dynamic-apis error.
     const { id } = await Promise.resolve(params);
     const { searchParams } = new URL(request.url);
     const rerun = searchParams.get("rerun");
@@ -20,16 +43,12 @@ export async function GET(
         { status: 400 }
       );
     }
-
     const bookId = parseInt(id, 10);
     if (isNaN(bookId)) {
       return NextResponse.json({ error: "Invalid book id" }, { status: 400 });
     }
 
-    const book = await prisma.book.findUnique({
-      where: { id: bookId },
-    });
-
+    const book = await prisma.book.findUnique({ where: { id: bookId } });
     if (!book) {
       return NextResponse.json({ error: "Book not found" }, { status: 404 });
     }
@@ -40,53 +59,13 @@ export async function GET(
 
     const prompt = generatePrompt(book.content);
 
-    // Generate analysis using Vercel's AI SDK for Groq.
-    const { text } = await generateText({
+    // Use generateObject to directly obtain a structured analysis.
+    const { object: formattedAnalysis } = await generateObject<BookAnalysis>({
       model: groq("gemma2-9b-it"),
       prompt,
       temperature: 0.7,
+      schema: bookAnalysisSchema,
     });
-
-    // Remove the markdown code block markers ("```json" and "```") from the response.
-    let cleanedText = text;
-    if (typeof cleanedText === "string") {
-      cleanedText = cleanedText
-        .replace(/^```json\s*/i, "")
-        .replace(/\s*```$/i, "");
-    }
-
-    let formattedAnalysis;
-    try {
-      formattedAnalysis = JSON.parse(cleanedText);
-    } catch (parseError) {
-      console.error("Failed to parse LLM response as JSON:", parseError);
-      return NextResponse.json(
-        { error: "Failed to parse analysis response. Please try again." },
-        { status: 500 }
-      );
-    }
-
-    // Validate that the formatted analysis has the expected keys.
-    const expectedKeys = [
-      "key_characters",
-      "detected_language",
-      "sentiment",
-      "reasoning_for_sentiment",
-      "plot_summary",
-    ];
-    const hasAllKeys = expectedKeys.every((key) =>
-      Object.prototype.hasOwnProperty.call(formattedAnalysis, key)
-    );
-    if (!hasAllKeys) {
-      console.error(
-        "Formatted analysis is missing expected keys:",
-        formattedAnalysis
-      );
-      return NextResponse.json(
-        { error: "Formatted analysis is missing expected keys." },
-        { status: 500 }
-      );
-    }
 
     // Save or update the analysis in the database.
     await prisma.book.update({
@@ -109,11 +88,11 @@ function generatePrompt(bookText: string): string {
   return `
 You are a text analysis assistant. Given the book text sample below, please provide the following analyses in a valid JSON format:
 {
-  "key_characters": [ "Name1", "Name2", ... ],
-  "detected_language": "Language",
+  "keyCharacters": "<string array of key characters>",
+  "detectedLanguage": "Language",
   "sentiment": "Positive/Negative/Neutral",
-  "reasoning_for_sentiment": "Brief reasoning here",
-  "plot_summary": "A brief plot summary..."
+  "sentimentReasoning": "Brief reasoning here",
+  "plotSummary": "A brief plot summary..."
 }
 
 Book Text Sample:

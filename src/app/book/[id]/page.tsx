@@ -3,14 +3,7 @@ import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { ReadMoreTextBlock } from "@/app/components/ReadMoreTextBlock";
-
-interface BookAnalysis {
-  key_characters: string[];
-  detected_language: string;
-  sentiment: string;
-  reasoning_for_sentiment: string;
-  plot_summary: string;
-}
+import { BookAnalysis } from "@/types/bookAnalysis";
 
 const IGNORED_METADATA_FIELDS = [
   "id",
@@ -121,30 +114,42 @@ export default function BookPage() {
 
     return (
       <div>
-        <h2 className="text-2xl font-bold mb-4">
-          AI Analysis for <span className="italic">{bookData.title}</span>
-        </h2>
+        <div className="flex flex-row justify-items-start items-end mb-4">
+          <div className="flex flex-row items-end">
+            <h2 className="text-2xl font-bold mr-2">{bookData.title}</h2>
+            <h3 className="text-lg">{bookData.author}</h3>
+          </div>
+          <div className="ml-auto">
+            <button
+              onClick={() => handleAnalyze(true)}
+              className="px-4 py-2 bg-blue-500 text-white rounded"
+              disabled={analysisLoading}
+            >
+              {analysisLoading ? "Analyzing..." : "Refresh Analyses"}
+            </button>
+          </div>
+        </div>
         {typeof analysisResult === "string" ? (
           <pre className="whitespace-pre-wrap">{analysisResult}</pre>
         ) : (
           <div className="space-y-4">
             <div>
               <strong>Key Characters:</strong>{" "}
-              {analysisResult.key_characters.join(", ")}
+              {analysisResult.keyCharacters.join(", ")}
             </div>
             <div>
               <strong>Detected Language:</strong>{" "}
-              {analysisResult.detected_language}
+              {analysisResult.detectedLanguage}
             </div>
             <div>
               <strong>Sentiment:</strong> {analysisResult.sentiment}
             </div>
             <div>
               <strong>Reasoning for Sentiment:</strong>{" "}
-              {analysisResult.reasoning_for_sentiment}
+              {analysisResult.sentimentReasoning}
             </div>
             <div>
-              <strong>Plot Summary:</strong> {analysisResult.plot_summary}
+              <strong>Plot Summary:</strong> {analysisResult.plotSummary}
             </div>
           </div>
         )}
@@ -249,15 +254,7 @@ export default function BookPage() {
                 renderAnalysis()
               )}
             </div>
-            <div className="flex gap-4 mt-4 justify-center">
-              <button
-                onClick={() => handleAnalyze(true)}
-                className="px-4 py-2 bg-yellow-500 text-white rounded"
-                disabled={analysisLoading}
-              >
-                {analysisLoading ? "Re-running..." : "Re-run Analysis"}
-              </button>
-            </div>
+
             <button
               onClick={() => setShowAnalysisModal(false)}
               className="absolute top-0 right-[-40px] translate-x-1/2 -translate-y-1/2 text-6xl text-gray-100 hover:text-gray-50"
