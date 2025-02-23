@@ -41,7 +41,33 @@ export async function GET(
       const contentUrl = `https://www.gutenberg.org/files/${bookId}/${bookId}-0.txt`;
       const contentResponse = await fetch(contentUrl);
       if (!contentResponse.ok) throw new Error("Failed to fetch book content");
-      const content = await contentResponse.text();
+      const rawContent = await contentResponse.text();
+
+      // Clean the book content:
+      // Split into lines and extract the content between the start and end markers.
+      const lines = rawContent.split("\n");
+      let startIndex = -1;
+      let endIndex = -1;
+      for (let i = 0; i < lines.length; i++) {
+        if (lines[i].includes("PROJECT GUTENBERG EBOOK")) {
+          startIndex = i;
+          break;
+        }
+      }
+      for (let i = lines.length - 1; i >= 0; i--) {
+        if (lines[i].includes("PROJECT GUTENBERG EBOOK")) {
+          endIndex = i;
+          break;
+        }
+      }
+      let cleanedContent = rawContent.trim();
+      if (startIndex !== -1 && endIndex !== -1 && startIndex < endIndex) {
+        // Start extraction from the line immediately after the start marker
+        cleanedContent = lines
+          .slice(startIndex + 1, endIndex)
+          .join("\n")
+          .trim();
+      }
 
       // Fetch metadata from Gutendex in JSON format
       const gutendexUrl = `https://gutendex.com/books?ids=${bookId}`;
@@ -63,11 +89,11 @@ export async function GET(
           : [];
       }
 
-      // Create a new Book record
+      // Create a new Book record with the cleaned content
       book = await prisma.book.create({
         data: {
           id: bookId,
-          content,
+          content: cleanedContent,
           metadata: parsedMetadata,
           title,
           author,
