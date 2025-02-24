@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import { Button } from "../components/Button";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -50,15 +51,12 @@ export default function Login() {
           className="w-full p-2 border rounded mb-4"
           required
         />
-        <button
-          type="submit"
-          className="w-full bg-blue-500 text-white p-2 rounded"
-        >
+        <Button type="submit" className="mt-2 w-full">
           Login
-        </button>
+        </Button>
       </form>
       <p className="mt-4">
-        Don&lsquo;t have an account?
+        Don&lsquo;t have an account?&nbsp;
         <a href="/signup" className="text-blue-500 hover:underline">
           Sign Up
         </a>

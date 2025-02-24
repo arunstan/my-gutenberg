@@ -4,6 +4,7 @@ import axios, { AxiosError } from "axios";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { Button } from "../components/Button";
 
 export default function Signup() {
   const [email, setEmail] = useState("");
@@ -62,12 +63,9 @@ export default function Signup() {
           className="w-full p-2 border rounded mb-4"
           required
         />
-        <button
-          type="submit"
-          className="w-full bg-blue-500 text-white p-2 rounded"
-        >
+        <Button type="submit" className="mt-2 w-full">
           Sign Up
-        </button>
+        </Button>
       </form>
       <p className="mt-4">
         Already have an account?{" "}

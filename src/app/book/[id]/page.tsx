@@ -8,6 +8,7 @@ import BookMetadata from "./BookMetadata";
 import { useBookDetails } from "./useBookDetails";
 import { useBookAnalysis } from "./useBookAnalysis";
 import { Button } from "@/app/components/Button";
+import Link from "next/link";
 
 export default function BookPage() {
   const { id } = useParams();
@@ -31,7 +32,17 @@ export default function BookPage() {
 
   const renderDataLoadStatus = () => {
     if (loading) return <p>Loading book data...</p>;
-    if (error) return <p className="text-red-500">{error}</p>;
+    if (error)
+      return (
+        <div className="flex flex-col place-items-center">
+          <p className="text-red-500 mb-2">{error}</p>
+          <Link href="/">
+            <span className="text-blue-500 hover:underline cursor-pointer">
+              Find another book &rarr;
+            </span>
+          </Link>
+        </div>
+      );
     if (!bookData) return <p>No book data found.</p>;
   };
 
