@@ -29,11 +29,11 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-gray-100 dark:bg-gray-900`}
       >
         <SessionProviderWrapper>
           <AppBar />
-          <main className="">{children}</main>
+          <main className="pt-[68] sm:pt-[75]">{children}</main>
         </SessionProviderWrapper>
       </body>
     </html>

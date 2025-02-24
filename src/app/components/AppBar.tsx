@@ -13,14 +13,14 @@ export default function AppBar() {
 
   return (
     <>
-      <header className="bg-blue-600 text-white p-4 flex justify-between items-center z-50 shadow-md relative">
+      <header className="bg-blue-600 text-white p-4 flex justify-between items-center z-50 shadow-md w-full fixed">
         <div className="flex items-center space-x-6">
           <Link href="/">
             <span className="text-2xl font-bold cursor-pointer">
               {APP_TITLE}
             </span>
           </Link>
-          {/* Navigation links only visible on medium and up screens */}
+
           <nav className="hidden md:flex space-x-4">
             <Link href="/">
               <span className="hover:underline cursor-pointer">Home</span>
@@ -30,8 +30,6 @@ export default function AppBar() {
             </Link>
           </nav>
         </div>
-
-        {/* Right side actions visible on medium and up screens */}
         <div className="hidden md:flex items-center space-x-4">
           {session?.user ? (
             <>
@@ -50,8 +48,6 @@ export default function AppBar() {
             </Link>
           )}
         </div>
-
-        {/* Hamburger menu: visible only on small screens */}
         <button
           onClick={() => setMenuOpen(!menuOpen)}
           className="md:hidden focus:outline-none"
@@ -71,12 +67,10 @@ export default function AppBar() {
           </svg>
         </button>
       </header>
-
-      {/* Mobile menu: visible on small screens when menuOpen is true */}
       {menuOpen && (
-        <div className="md:hidden bg-blue-600 text-white p-4">
+        <div className="w-full fixed md:hidden bg-blue-600 text-white p-4 pt-[80]">
           <nav className="flex flex-col space-y-4">
-            <Link href="/">
+            <Link href="/" className="pb-1 border-b border-gray-400">
               <span
                 className="hover:underline cursor-pointer"
                 onClick={() => setMenuOpen(false)}
@@ -84,7 +78,7 @@ export default function AppBar() {
                 Home
               </span>
             </Link>
-            <Link href="/my-books">
+            <Link href="/my-books" className="pb-1 border-b border-gray-400">
               <span
                 className="hover:underline cursor-pointer"
                 onClick={() => setMenuOpen(false)}
