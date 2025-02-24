@@ -1,14 +1,22 @@
 import { useState } from "react";
 
-export const ReadMoreTextBlock = ({ text, previewLength = 100 }) => {
+export type ReadMoreTextBlockProps = {
+  text?: string | null;
+  previewLength?: number;
+};
+
+export const ReadMoreTextBlock = ({
+  text,
+  previewLength = 100,
+}: ReadMoreTextBlockProps) => {
   const [expanded, setExpanded] = useState(false);
   const toggleExpanded = () => setExpanded((prev) => !prev);
 
-  if (text.length <= previewLength) {
+  if (text && text.length <= previewLength) {
     return <span>{text}</span>;
   }
 
-  return (
+  return text ? (
     <div>
       {expanded ? text : text.substring(0, previewLength) + "..."}
       <button
@@ -18,5 +26,5 @@ export const ReadMoreTextBlock = ({ text, previewLength = 100 }) => {
         {expanded ? "Show Less" : "Read More"}
       </button>
     </div>
-  );
+  ) : null;
 };

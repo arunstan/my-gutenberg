@@ -40,5 +40,5 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
 - Add proper typings
 - Extract the book chapters and save only relevant data in DB - Can help in AI analysis too
 - Add pagination for the API route for returning the list of books user has accessed
-- Update the AI SDK to call to specify the schema
+- Update the "My Books" page to show a card and list based layout
 - Use i18n

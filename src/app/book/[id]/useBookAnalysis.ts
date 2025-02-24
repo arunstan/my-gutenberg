@@ -22,8 +22,10 @@ export function useBookAnalysis(bookId?: string) {
       }
       const data = await res.json();
       setAnalysisResult(data.analysis);
-    } catch (err: any) {
-      setAnalysisError(err.message || "An error occurred during analysis");
+    } catch (err) {
+      if (err instanceof Error) {
+        setAnalysisError(err.message || "An error occurred during analysis");
+      }
     } finally {
       setAnalysisLoading(false);
     }

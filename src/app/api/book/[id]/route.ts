@@ -1,16 +1,41 @@
 import { NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client";
+import { Book, PrismaClient } from "@prisma/client";
 import { getServerSession } from "next-auth/next";
-import { authOptions } from "../../auth/[...nextauth]/route";
+import { authOptions } from "../../auth/[...nextauth]/authOptions";
+import { BookMetadata } from "@/types/bookMetadata";
 
 const prisma = new PrismaClient();
 
+const getBookFields = (metadata: BookMetadata) => {
+  const title = metadata.title || "";
+  const author = Array.isArray(metadata.authors)
+    ? metadata.authors.map((a) => a.name)
+    : [];
+  return { title, author, metadata: metadata ?? {} };
+};
+
+const getBookContent = (text: string) => {
+  const marker = "PROJECT GUTENBERG EBOOK";
+  const firstIdx = text.indexOf(marker);
+  const lastIdx = text.lastIndexOf(marker);
+
+  if (firstIdx > -1 && lastIdx > -1) {
+    const firstNewLineAfter = text.indexOf("\n", firstIdx);
+    const lastNewLineBefore = text.lastIndexOf("\n", lastIdx);
+
+    if (firstNewLineAfter > -1 && lastNewLineBefore > -1) {
+      return text.slice(firstNewLineAfter + 1, lastNewLineBefore);
+    }
+  }
+
+  return text;
+};
+
 export async function GET(
-  request: Request,
-  { params }: { params: { id: string } }
+  _request: Request,
+  { params }: { params: Promise<{ id: string }> }
 ) {
-  // Ensure dynamic route params are awaited
-  const { id } = await Promise.resolve(params);
+  const id = (await params).id;
   const bookId = parseInt(id, 10);
   if (isNaN(bookId)) {
     return NextResponse.json({ error: "Invalid book id" }, { status: 400 });
@@ -41,33 +66,10 @@ export async function GET(
       const contentUrl = `https://www.gutenberg.org/files/${bookId}/${bookId}-0.txt`;
       const contentResponse = await fetch(contentUrl);
       if (!contentResponse.ok) throw new Error("Failed to fetch book content");
-      const rawContent = await contentResponse.text();
+      const rawContent = (await contentResponse.text()).trim();
 
       // Clean the book content:
-      // Split into lines and extract the content between the start and end markers.
-      const lines = rawContent.split("\n");
-      let startIndex = -1;
-      let endIndex = -1;
-      for (let i = 0; i < lines.length; i++) {
-        if (lines[i].includes("PROJECT GUTENBERG EBOOK")) {
-          startIndex = i;
-          break;
-        }
-      }
-      for (let i = lines.length - 1; i >= 0; i--) {
-        if (lines[i].includes("PROJECT GUTENBERG EBOOK")) {
-          endIndex = i;
-          break;
-        }
-      }
-      let cleanedContent = rawContent.trim();
-      if (startIndex !== -1 && endIndex !== -1 && startIndex < endIndex) {
-        // Start extraction from the line immediately after the start marker
-        cleanedContent = lines
-          .slice(startIndex + 1, endIndex)
-          .join("\n")
-          .trim();
-      }
+      const cleanedContent = getBookContent(rawContent);
 
       // Fetch metadata from Gutendex in JSON format
       const gutendexUrl = `https://gutendex.com/books?ids=${bookId}`;
@@ -76,27 +78,23 @@ export async function GET(
         throw new Error("Failed to fetch metadata from Gutendex");
       const gutendexData = await gutendexResponse.json();
 
-      let title = "";
-      let author: string[] = [];
-      let parsedMetadata = {};
-
-      if (gutendexData.results && gutendexData.results.length > 0) {
-        parsedMetadata = gutendexData.results[0];
-        title = parsedMetadata.title || "";
-        // Extract author names from the authors array
-        author = Array.isArray(parsedMetadata.authors)
-          ? parsedMetadata.authors.map((a: any) => a.name)
-          : [];
-      }
+      const {
+        title,
+        author,
+        metadata,
+      }: Pick<Book, "title" | "author" | "metadata"> =
+        gutendexData.results && gutendexData.results.length > 0
+          ? getBookFields(gutendexData.results[0])
+          : { title: null, author: [], metadata: {} };
 
       // Create a new Book record with the cleaned content
       book = await prisma.book.create({
         data: {
           id: bookId,
           content: cleanedContent,
-          metadata: parsedMetadata,
           title,
           author,
+          metadata,
         },
       });
     }

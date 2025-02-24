@@ -2,9 +2,10 @@
 
 import React from "react";
 import { ReadMoreTextBlock } from "@/app/components/ReadMoreTextBlock";
+import { BookMetadata as BookMetadataType } from "@/types/bookMetadata";
 
 export type BookMetadataProps = {
-  metadata: any;
+  metadata: BookMetadataType;
   ignoredFields?: string[];
 };
 

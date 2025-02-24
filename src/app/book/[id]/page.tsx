@@ -35,12 +35,6 @@ export default function BookPage() {
     if (!bookData) return <p>No book data found.</p>;
   };
 
-  const bookAuthor = bookData
-    ? Array.isArray(bookData.author)
-      ? bookData.author.join(", ")
-      : bookData.author
-    : "";
-
   const handleClickReadBook = () => {
     setShowContentModal(true);
   };
@@ -68,7 +62,7 @@ export default function BookPage() {
             </p>
             <p>
               <strong>Authors:</strong>
-              {bookAuthor}
+              {bookData.author}
             </p>
             <div className="mt-4 flex gap-4">
               <Button onClick={handleClickReadBook} variant="primary">
@@ -108,7 +102,7 @@ export default function BookPage() {
           onReAnalyze={handleClickReAnalyze}
           onClose={handleClickAnalysisModal}
           bookTitle={bookData.title}
-          bookAuthor={bookAuthor}
+          bookAuthor={bookData.author}
         />
       )}
     </div>

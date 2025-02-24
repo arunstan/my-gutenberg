@@ -1,9 +1,8 @@
 "use client";
-
 import Link from "next/link";
 import { signOut, useSession } from "next-auth/react";
-import { APP_TITLE } from "../layout";
 import { Button } from "./Button";
+import { APP_TITLE } from "../constants";
 
 export default function AppBar() {
   const { data: session } = useSession();

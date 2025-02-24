@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -31,8 +31,10 @@ export default function Signup() {
           router.push("/");
         }
       }
-    } catch (err: any) {
-      setError(err.response?.data?.error || "Signup failed");
+    } catch (err) {
+      if (err instanceof AxiosError) {
+        setError(err.response?.data?.error || "Signup failed");
+      }
     }
   };
 

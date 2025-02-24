@@ -3,10 +3,15 @@ import { PrismaClient } from "@prisma/client";
 import { groq } from "@ai-sdk/groq";
 import { generateObject, jsonSchema } from "ai";
 import { BookAnalysis } from "@/types/bookAnalysis";
+import { type NextRequest } from "next/server";
 
 const prisma = new PrismaClient();
 
-const bookAnalysisSchema = jsonSchema({
+// The number of characters that should be send to LLM for processing
+// Keeping this as per model limits
+const BOOK_TEXT_LIMIT = 15000;
+
+const bookAnalysisSchema = jsonSchema<BookAnalysis>({
   type: "object",
   properties: {
     keyCharacters: {
@@ -28,13 +33,12 @@ const bookAnalysisSchema = jsonSchema({
 });
 
 export async function GET(
-  request: Request,
-  { params }: { params: { id: string } }
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    // Await dynamic params to avoid sync-dynamic-apis error.
-    const { id } = await Promise.resolve(params);
-    const { searchParams } = new URL(request.url);
+    const id = (await params).id;
+    const searchParams = request.nextUrl.searchParams;
     const rerun = searchParams.get("rerun");
 
     if (!id) {
@@ -74,7 +78,7 @@ export async function GET(
     });
 
     return NextResponse.json({ analysis: formattedAnalysis });
-  } catch (error: any) {
+  } catch (error) {
     console.error("Error analyzing book:", error);
     return NextResponse.json(
       { error: "Internal Server Error" },
@@ -84,7 +88,7 @@ export async function GET(
 }
 
 function generatePrompt(bookText: string): string {
-  const sampleText = bookText.slice(0, 10000);
+  const sampleText = bookText.slice(0, BOOK_TEXT_LIMIT);
   return `
 You are a text analysis assistant. Given the book text sample below, please provide the following analyses in a valid JSON format:
 {

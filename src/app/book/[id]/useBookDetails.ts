@@ -1,7 +1,8 @@
+import { Book } from "@/types/book";
 import { useState, useEffect } from "react";
 
 export function useBookDetails(bookId?: string) {
-  const [bookData, setBookData] = useState<any>(null);
+  const [bookData, setBookData] = useState<Book | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -15,9 +16,21 @@ export function useBookDetails(bookId?: string) {
           throw new Error("Failed to fetch book data");
         }
         const data = await res.json();
-        setBookData(data);
-      } catch (err: any) {
-        setError(err.message || "An error occurred");
+
+        const author = data
+          ? Array.isArray(data.author)
+            ? data.author.join(", ")
+            : data.author
+          : "";
+
+        const title = data?.title ?? "";
+        const cleanedData = { ...data, author, title };
+
+        setBookData(cleanedData);
+      } catch (err) {
+        if (err instanceof Error) {
+          setError(err.message || "An error occurred");
+        }
       } finally {
         setLoading(false);
       }

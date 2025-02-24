@@ -3,11 +3,12 @@ import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { Book } from "@prisma/client";
 
 export default function MyBooksPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
-  const [books, setBooks] = useState<any[]>([]);
+  const [books, setBooks] = useState<Book[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -30,8 +31,10 @@ export default function MyBooksPage() {
       }
       const data = await res.json();
       setBooks(data);
-    } catch (err: any) {
-      setError(err.message || "Failed to fetch books");
+    } catch (err) {
+      if (err instanceof Error) {
+        setError(err.message || "Failed to fetch books");
+      }
     } finally {
       setLoading(false);
     }
