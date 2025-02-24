@@ -9,6 +9,7 @@ import { useBookDetails } from "./useBookDetails";
 import { useBookAnalysis } from "./useBookAnalysis";
 import { Button } from "@/app/components/Button";
 import Link from "next/link";
+import { LoadingSpinner } from "@/app/components/LoadingSpinner";
 
 export default function BookPage() {
   const { id } = useParams();
@@ -31,7 +32,14 @@ export default function BookPage() {
   }, [status, session, router]);
 
   const renderDataLoadStatus = () => {
-    if (loading) return <p>Loading book data...</p>;
+    if (loading)
+      return (
+        <p className="text-center">
+          <LoadingSpinner className="inline-block mr-2" />
+          Loading book data...
+        </p>
+      );
+
     if (error)
       return (
         <div className="flex flex-col place-items-center">
