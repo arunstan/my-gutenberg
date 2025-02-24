@@ -62,14 +62,16 @@ export default function MyBooksPage() {
       <div className="max-w-3xl mx-auto bg-white dark:bg-gray-800 p-6 rounded shadow-md">
         <div className="flex flex-col sm:flex-row mb-2">
           <h1 className="text-2xl font-bold mb-4">My Books</h1>
-          <div className="flex sm:ml-auto mb-4">
-            <Button
-              onClick={() => setIsCardView(!isCardView)}
-              className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition"
-            >
-              {isCardView ? "Switch to List View" : "Switch to Card View"}
-            </Button>
-          </div>
+          {books.length > 0 && (
+            <div className="flex sm:ml-auto mb-4">
+              <Button
+                onClick={() => setIsCardView(!isCardView)}
+                className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition"
+              >
+                {isCardView ? "Switch to List View" : "Switch to Card View"}
+              </Button>
+            </div>
+          )}
         </div>
         {loading ? (
           <p>Loading books...</p>
