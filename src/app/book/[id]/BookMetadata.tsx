@@ -52,10 +52,7 @@ const BookMetadata: React.FC<BookMetadataProps> = ({
           />
         </div>
       )}
-      <div
-        className="grid gap-4"
-        style={{ gridTemplateColumns: "300px 300px" }}
-      >
+      <div className="grid gap-4 grid-cols-1 md:grid-cols-2">
         {Object.entries(metadata)
           .filter(([key]) => !ignoredFields.includes(key))
           .map(([key, value]) => (
