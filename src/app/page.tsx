@@ -52,7 +52,11 @@ export default function Home() {
               placeholder="Enter a book ID, e.g. 1"
               className="w-full border border-gray-300 dark:border-gray-600 rounded p-2 mb-4 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400"
             />
-            <Button type="submit" variant="primary" disabled={!!error}>
+            <Button
+              type="submit"
+              variant="primary"
+              disabled={!!error || !bookId}
+            >
               Fetch Book
             </Button>
           </div>
