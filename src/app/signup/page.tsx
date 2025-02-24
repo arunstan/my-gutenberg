@@ -5,6 +5,7 @@ import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Button } from "../components/Button";
+import { APP_TITLE } from "../constants";
 
 export default function Signup() {
   const [email, setEmail] = useState("");
@@ -41,6 +42,7 @@ export default function Signup() {
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100 dark:bg-gray-900 p-4">
+      <h1 className="text-5xl font-bold cursor-pointer mb-10">{APP_TITLE}</h1>
       <form
         onSubmit={handleSubmit}
         className="max-w-md w-full bg-white dark:bg-gray-800 p-6 rounded shadow-md"
