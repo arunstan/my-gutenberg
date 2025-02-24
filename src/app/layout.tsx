@@ -33,7 +33,7 @@ export default function RootLayout({
       >
         <SessionProviderWrapper>
           <AppBar />
-          <main className="pt-14 min-h-screen">{children}</main>
+          <main className="">{children}</main>
         </SessionProviderWrapper>
       </body>
     </html>

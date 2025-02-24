@@ -44,20 +44,15 @@ export default function Home() {
           Find a book
         </h1>
         <form onSubmit={handleSubmit} className="mb-4">
-          <div className="flex flex-row">
+          <div className="flex flex-col place-items-center">
             <input
               id="bookId"
               value={bookId}
               onChange={handleChangeBookId}
               placeholder="Enter a book ID, e.g. 1"
-              className="w-4/5 border border-gray-300 dark:border-gray-600 rounded p-2 mr-4 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400"
+              className="w-full border border-gray-300 dark:border-gray-600 rounded p-2 mb-4 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400"
             />
-            <Button
-              type="submit"
-              variant="primary"
-              className="w-1/5"
-              disabled={!!error}
-            >
+            <Button type="submit" variant="primary" disabled={!!error}>
               Fetch Book
             </Button>
           </div>
