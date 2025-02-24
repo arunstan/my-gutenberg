@@ -13,7 +13,7 @@ export default function AppBar() {
 
   return (
     <>
-      <header className="bg-blue-600 text-white p-4 flex justify-between items-center z-50 shadow-md w-full fixed">
+      <header className="bg-blue-600 text-white p-4 flex justify-between items-center z-50 shadow-md relative">
         <div className="flex items-center space-x-6">
           <Link href="/">
             <span className="text-2xl font-bold cursor-pointer">
@@ -68,7 +68,7 @@ export default function AppBar() {
         </button>
       </header>
       {menuOpen && (
-        <div className="w-full fixed md:hidden bg-blue-600 text-white p-4 pt-[80]">
+        <div className="w-full fixed md:hidden bg-blue-600 text-white p-4">
           <nav className="flex flex-col space-y-4">
             <Link href="/" className="pb-1 border-b border-gray-400">
               <span
